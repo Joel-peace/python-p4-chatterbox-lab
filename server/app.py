@@ -15,10 +15,6 @@ db.init_app(app)
 
 @app.route('/messages', methods=['GET'])
 def get_messages():
-/*************  ✨ Windsurf Command ⭐  *************/
-    """Returns all messages in the database as a JSON list, sorted by creation date ascending"""
-    
-/*******  553a590a-a00c-4589-b75f-58810f89d3e7  *******/
     messages = Message.query.order_by(Message.created_at.asc()).all()
     return jsonify([m.to_dict() for m in messages]), 200
 
