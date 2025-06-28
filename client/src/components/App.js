@@ -12,29 +12,47 @@ function App() {
   const [search, setSearch] = useState("");
 
   useEffect(() => {
-    fetch("http://127.0.0.1:4000/messages")
+    fetch("http://127.0.0.1:5555/messages")
       .then((r) => r.json())
       .then((messages) => setMessages(messages));
   }, []);
 
   function handleAddMessage(newMessage) {
-    setMessages([...messages, newMessage]);
+    fetch("http://127.0.0.1:5555/messages", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(newMessage),
+    })
+      .then((r) => r.json())
+      .then((data) => setMessages([...messages, data]));
   }
 
   function handleDeleteMessage(id) {
-    const updatedMessages = messages.filter((message) => message.id !== id);
-    setMessages(updatedMessages);
+    fetch(`http://127.0.0.1:5555/messages/${id}`, {
+      method: "DELETE",
+    }).then(() => {
+      const updatedMessages = messages.filter((message) => message.id !== id);
+      setMessages(updatedMessages);
+    });
   }
 
   function handleUpdateMessage(updatedMessageObj) {
-    const updatedMessages = messages.map((message) => {
-      if (message.id === updatedMessageObj.id) {
-        return updatedMessageObj;
-      } else {
-        return message;
-      }
-    });
-    setMessages(updatedMessages);
+    fetch(`http://127.0.0.1:5555/messages/${updatedMessageObj.id}`, {
+      method: "PATCH",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ body: updatedMessageObj.body }),
+    })
+      .then((r) => r.json())
+      .then((updatedMessageFromServer) => {
+        const updatedMessages = messages.map((message) =>
+          message.id === updatedMessageFromServer.id ? updatedMessageFromServer : message
+        );
+        setMessages(updatedMessages);
+      });
   }
 
   const displayedMessages = messages.filter((message) =>
